@@ -21,4 +21,3 @@ Edit `index.html` dan ganti **`CONTRACT_ADDRESS`** dengan alamat smart contract 
 ```js
 const CONTRACT_ADDRESS = "0xYOUR_CONTRACT_ADDRESS";
 
-Simplest Web3 Voting system.

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 Voting</title>
+</head>
+<body>
+    <h1>Voting System Web3</h1>
+    <button onclick="connectWallet()">Connect Wallet</button>
+    <p id="account"></p>
+
+    <h2>Vote for a Candidate:</h2>
+    <select id="candidateSelect"></select>
+    <button onclick="vote()">Vote</button>
+
+    <h2>Votes:</h2>
+    <ul id="voteList"></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.2/ethers.umd.min.js"></script>
+    <script>
+        const CONTRACT_ADDRESS = "0xYOUR_CONTRACT_ADDRESS";
+        const ABI = [ 
+            {"inputs":[{"internalType":"string[]","name":"_candidates","type":"string[]"}],"stateMutability":"nonpayable","type":"constructor"},
+            {"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"votes","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"getCandidates","outputs":[{"internalType":"string[]","name":"","type":"string[]"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"string","name":"_candidate","type":"string"}],"name":"getVotes","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"string","name":"_candidate","type":"string"}],"name":"vote","outputs":[],"stateMutability":"nonpayable","type":"function"}
+        ];
+
+        let provider, signer, contract;
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+                document.getElementById("account").innerText = `Connected: ${await signer.getAddress()}`;
+                contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+                loadCandidates();
+            } else {
+                alert("Metamask not detected!");
+            }
+        }
+
+        async function loadCandidates() {
+            const candidates = await contract.getCandidates();
+            const select = document.getElementById("candidateSelect");
+            const voteList = document.getElementById("voteList");
+            select.innerHTML = "";
+            voteList.innerHTML = "";
+
+            candidates.forEach(async (candidate) => {
+                const option = document.createElement("option");
+                option.value = candidate;
+                option.innerText = candidate;
+                select.appendChild(option);
+
+                const votes = await contract.getVotes(candidate);
+                const li = document.createElement("li");
+                li.innerText = `${candidate}: ${votes} votes`;
+                voteList.appendChild(li);
+            });
+        }
+
+        async function vote() {
+            const candidate = document.getElementById("candidateSelect").value;
+            const tx = await contract.vote(candidate);
+            await tx.wait();
+            alert("Vote successful!");
+            loadCandidates();
+        }
+    </script>
+</body>
+</html>
+
+<!-- Code by Michael -->

@@ -20,7 +20,6 @@ Edit `index.html` and replace **`CONTRACT_ADDRESS`** with the deployed smart con
 
 ```js
 const CONTRACT_ADDRESS = "0xYOUR_CONTRACT_ADDRESS";
-
 ```
 
 ## 3️⃣ Run the Application
